@@ -181,16 +181,23 @@ function wrappedSpawnFunction (fn, workingDir) {
       }
     }
 
+    var npmIgnorePathEnvSet = false
     for (var i = 0; i < options.envPairs.length; i++) {
       var ep = options.envPairs[i]
       if (ep.match(pathRe)) {
         pathEnv = ep.substr(5)
         var k = ep.substr(0, 5)
         options.envPairs[i] = k + workingDir + colon + pathEnv
+      } else if (ep.match(/^npm_config_scripts_ignore_node_path/i)) {
+        npmIgnorePathEnvSet = true
+        options.envPairs[i] = 'npm_config_scripts_ignore_node_path=true'
       }
     }
     if (!pathEnv) {
       options.envPairs.push((isWindows ? 'Path=' : 'PATH=') + workingDir)
+    }
+    if (!npmIgnorePathEnvSet) {
+      options.envPairs.push('npm_config_scripts_ignore_node_path=true')
     }
 
     if (file === 'npm' && !isWindows) {
